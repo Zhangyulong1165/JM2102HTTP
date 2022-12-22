@@ -1,0 +1,15 @@
+debug/CJsonObject.o
+debug/cJSON.o
+debug/logger.o
+debug/main.o
+debug/mainwindow.o
+debug/my_http.o
+debug/my_match.o
+debug/my_match_thread.o
+debug/my_recv_handle_thread.o
+debug/my_tcpserver.o
+debug/sqllitehandle.o
+debug/moc_mainwindow.o
+debug/moc_my_http.o
+debug/moc_my_match.o
+debug/moc_my_tcpserver.o

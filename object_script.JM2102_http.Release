@@ -1,0 +1,15 @@
+release/CJsonObject.o
+release/cJSON.o
+release/logger.o
+release/main.o
+release/mainwindow.o
+release/my_http.o
+release/my_match.o
+release/my_match_thread.o
+release/my_recv_handle_thread.o
+release/my_tcpserver.o
+release/sqllitehandle.o
+release/moc_mainwindow.o
+release/moc_my_http.o
+release/moc_my_match.o
+release/moc_my_tcpserver.o
