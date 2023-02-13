@@ -1,9 +1,9 @@
 #include "sqllitehandle.h"
 #include <QApplication>
 extern int intervalTime;
-extern QString areaId;    
-extern QString siteCode;   
-extern QString siteName;   
+extern QString areaId;
+extern QString siteCode;
+extern QString siteName;
 extern int siteType;
 extern int checkType;
 extern int platePic;
@@ -13,7 +13,9 @@ extern int sidePic;
 extern int topPic;
 extern int globleVideo;
 extern int reverseSource;
+
 extern QQueue<JmVehSqlInfo *> resultVec;
+extern QQueue <Overlimitdata *> OverVec;
 extern QMutex *m_pSendMutex;
 SqlLiteHandle::SqlLiteHandle()
 {
@@ -61,11 +63,11 @@ long SqlLiteHandle::insert_vehicle_information(JmVehSqlInfo &Veh)
     QDateTime current_date =QDateTime::currentDateTime();
     char sql[1024*4] = {0};
     sprintf(sql,"insert into jm_veh_information (checkNo,siteCode,siteName,siteType,checkType,lane,checkTime,plateNum,\
-vehicleColor,plateNumType,direction,speed,axleCnt,axleType,sumWeight,limitWeight,\
-overWeight,overRate,width,limitWidth,overWidth,overWidthRate,length,limitLength,overLength,overLengthRate,\
-frontPlatePicPath,frontPicPath,backPicPath,sidePicPath,topPicPath,videoPath,isUp,isMatchFinished,insertTime) values \
-('%s','%s','%s',%d,%d,%d,'%s','%s',%d,%d,%d,%d,%d,%d,%d,%d,\
-%d,%.2f,%d,%d,%d,%.2f,%d,%d,%d,%.2f,'%s','%s','%s','%s','%s','%s',%d,%d,'%s')",
+            vehicleColor,plateNumType,direction,speed,axleCnt,axleType,sumWeight,limitWeight,\
+            overWeight,overRate,width,limitWidth,overWidth,overWidthRate,length,limitLength,overLength,overLengthRate,\
+            frontPlatePicPath,frontPicPath,backPicPath,sidePicPath,topPicPath,videoPath,isUp,isMatchFinished,insertTime) values \
+            ('%s','%s','%s',%d,%d,%d,'%s','%s',%d,%d,%d,%d,%d,%d,%d,%d,\
+             %d,%.2f,%d,%d,%d,%.2f,%d,%d,%d,%.2f,'%s','%s','%s','%s','%s','%s',%d,%d,'%s')",
             Veh.checkNo.toStdString().c_str(),Veh.siteCode.toStdString().c_str(),Veh.siteName.toStdString().c_str(),Veh.siteType,\
             Veh.checkType,Veh.lane,Veh.checkTime.toStdString().c_str(),Veh.plateNum.toStdString().c_str(),\
             Veh.plateNumColor,Veh.plateNumType,Veh.direction,Veh.speed,Veh.axleCnt,Veh.axleType,Veh.sumWeight,Veh.limitWeight,\
@@ -136,25 +138,25 @@ int SqlLiteHandle::insert_fxc_weight(RecvVecData *data)
     int limitWeight =0;
     switch (data->axleCnt)
     {
-        case 2:
-            limitWeight =18000;
-            break;
-        case 3:
-            limitWeight =27000;
-            break;
-        case 4:
-            limitWeight =36000;
-            break;
-        case 5:
-            limitWeight =43000;
-            break;
-        case 6:
-            limitWeight =49000;
-            break;
-        default:
-            qDebug()<<"????:"<<data->axleCnt;
-            limitWeight =49000;
-            break;
+    case 2:
+        limitWeight =18000;
+        break;
+    case 3:
+        limitWeight =27000;
+        break;
+    case 4:
+        limitWeight =36000;
+        break;
+    case 5:
+        limitWeight =43000;
+        break;
+    case 6:
+        limitWeight =49000;
+        break;
+    default:
+        qDebug()<<"????:"<<data->axleCnt;
+        limitWeight =49000;
+        break;
     }
     qDebug()<<"sunWeight:"<<data->sumWeight;
     int overWeight =data->sumWeight-limitWeight;
@@ -167,8 +169,8 @@ int SqlLiteHandle::insert_fxc_weight(RecvVecData *data)
     {
         QString current_date_time = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
         sprintf(sql,"insert into jm_veh_information (checkNo,matchNo,siteCode,siteName,siteType,checkType,lane,checkTime,\
-    speed,axleCnt,sumWeight,limitWeight,overWeight,overRate,reverse,isUp,isMatchFinished,insertTime,plateColor) values \
-    ('%s','%s','%s','%s',%d,%d,%d,'%s',%d,%d,%d,%d,%d,%.2f,%d,%d,%d,'%s',%d)",checkNo.toStdString().c_str(),
+                speed,axleCnt,sumWeight,limitWeight,overWeight,overRate,reverse,isUp,isMatchFinished,insertTime,plateColor) values \
+                ('%s','%s','%s','%s',%d,%d,%d,'%s',%d,%d,%d,%d,%d,%.2f,%d,%d,%d,'%s',%d)",checkNo.toStdString().c_str(),
                 data->matchNo.c_str(),siteCode.toStdString().c_str(),siteName.toStdString().c_str(),siteType,checkType,\
                 data->lane,data->dateTime.c_str(),data->speed,data->axleCnt,(int)data->sumWeight,limitWeight,overWeight,overRate,\
                 data->reverse,0,1,current_date_time.toStdString().c_str(),0);
@@ -195,8 +197,8 @@ int SqlLiteHandle::insert_fxc_weight(RecvVecData *data)
     succ = query.exec(sql);
     if(succ)
     {
-//        sprintf_s(logInfo,"sql handle ok");
-//        logDebug(logInfo);
+        //        sprintf_s(logInfo,"sql handle ok");
+        //        logDebug(logInfo);
     }
     else {
         sprintf_s(logInfo,"sql handle error %s",query.lastError().text().toStdString().c_str());
@@ -232,8 +234,8 @@ int SqlLiteHandle::insert_cam_weight(RecvCamData *data)
     bool succ =query.exec(sql);
     if(succ)
     {
-//        sprintf_s(logInfo,"sql handle ok");
-//        logDebug(logInfo);
+        //        sprintf_s(logInfo,"sql handle ok");
+        //        logDebug(logInfo);
     }
     else
     {
@@ -267,8 +269,8 @@ int SqlLiteHandle::insert_cam_weight(RecvCamData *data)
             checkNo.append(tmp);
             QString current_date_time = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
             sprintf(sql,"insert into jm_veh_information (checkNo,matchNo,siteCode,siteName,siteType,checkType,lane,checkTime,\
-        plateNum,direction,plateColor,vehicleType,reverse,isUp,isMatchFinished,insertTime,snapTime) values \
-                   ('%s','%s','%s','%s',%d,%d,%d,'%s','%s',%d,%d,%d,%d,%d,'%d','%s','%s')",
+                    plateNum,direction,plateColor,vehicleType,reverse,isUp,isMatchFinished,insertTime,snapTime) values \
+                    ('%s','%s','%s','%s',%d,%d,%d,'%s','%s',%d,%d,%d,%d,%d,'%d','%s','%s')",
                     checkNo.toStdString().c_str(),data->matchNo.c_str(),siteCode.toStdString().c_str(),\
                     siteName.toStdString().c_str(),siteType,checkType,data->lane,data->dateTime.c_str(),\
                     data->plateNum.c_str(),data->direction,data->plateColor,data->vehicleType,data->reverse,0,0,current_date_time.toStdString().c_str(),data->snapTime.c_str());
@@ -292,8 +294,8 @@ int SqlLiteHandle::insert_cam_weight(RecvCamData *data)
     succ = query.exec(sql);
     if(succ)
     {
-//        sprintf_s(logInfo,"sql handle ok");
-//        logDebug(logInfo);
+        //        sprintf_s(logInfo,"sql handle ok");
+        //        logDebug(logInfo);
     }
     else {
         sprintf_s(logInfo,"sql handle error %s",query.lastError().text().toStdString().c_str());
@@ -332,8 +334,8 @@ int SqlLiteHandle::insert_pic_weight(RecvPicData *data)
     bool succ =query.exec(sql);
     if(succ)
     {
-//        sprintf_s(logInfo,"sql handle ok");
-//        logDebug(logInfo);
+        //        sprintf_s(logInfo,"sql handle ok");
+        //        logDebug(logInfo);
     }
     else
     {
@@ -351,23 +353,23 @@ int SqlLiteHandle::insert_pic_weight(RecvPicData *data)
         {
         case 21:
             sprintf(sql,"insert into jm_veh_information (matchNo,frontPlatePicPath,isUp,insertTime) values ('%s','%s',%d,'%s')",
-            data->matchNo.c_str(),data->filePath.c_str(),0,current_date_time.toStdString().c_str());
+                    data->matchNo.c_str(),data->filePath.c_str(),0,current_date_time.toStdString().c_str());
             break;
         case 1:
             sprintf(sql,"insert into jm_veh_information (matchNo,frontPicPath,isUp,insertTime) values ('%s','%s',%d,'%s')",
-            data->matchNo.c_str(),data->filePath.c_str(),0,current_date_time.toStdString().c_str());
+                    data->matchNo.c_str(),data->filePath.c_str(),0,current_date_time.toStdString().c_str());
             break;
         case 2:
             sprintf(sql,"insert into jm_veh_information (matchNo,backPicPath,isUp,insertTime) values ('%s','%s',%d,'%s')",
-            data->matchNo.c_str(),data->filePath.c_str(),0,current_date_time.toStdString().c_str());
+                    data->matchNo.c_str(),data->filePath.c_str(),0,current_date_time.toStdString().c_str());
             break;
         case 3:
             sprintf(sql,"insert into jm_veh_information (matchNo,sidePicPath,isUp,insertTime) values ('%s','%s',%d,'%s')",
-            data->matchNo.c_str(),data->filePath.c_str(),0,current_date_time.toStdString().c_str());
+                    data->matchNo.c_str(),data->filePath.c_str(),0,current_date_time.toStdString().c_str());
             break;
         case 4:
             sprintf(sql,"insert into jm_veh_information (matchNo,topPicPath,isUp,insertTime) values ('%s','%s',%d,'%s')",
-            data->matchNo.c_str(),data->filePath.c_str(),0,current_date_time.toStdString().c_str());
+                    data->matchNo.c_str(),data->filePath.c_str(),0,current_date_time.toStdString().c_str());
             break;
         default:
             sprintf(logInfo,"camedir error:%d",data->cameraDir);
@@ -380,23 +382,23 @@ int SqlLiteHandle::insert_pic_weight(RecvPicData *data)
         {
         case 21:
             sprintf(sql,"UPDATE jm_veh_information SET frontPlatePicPath='%s' WHERE matchNo='%s'",
-data->filePath.c_str(),data->matchNo.c_str());
+                    data->filePath.c_str(),data->matchNo.c_str());
             break;
         case 1:
             sprintf(sql,"UPDATE jm_veh_information SET frontPicPath='%s' WHERE matchNo='%s'",
-data->filePath.c_str(),data->matchNo.c_str());
+                    data->filePath.c_str(),data->matchNo.c_str());
             break;
         case 2:
             sprintf(sql,"UPDATE jm_veh_information SET backPicPath='%s' WHERE matchNo='%s'",
-data->filePath.c_str(),data->matchNo.c_str());
+                    data->filePath.c_str(),data->matchNo.c_str());
             break;
         case 3:
             sprintf(sql,"UPDATE jm_veh_information SET sidePicPath='%s' WHERE matchNo='%s'",
-data->filePath.c_str(),data->matchNo.c_str());
+                    data->filePath.c_str(),data->matchNo.c_str());
             break;
         case 4:
             sprintf(sql,"UPDATE jm_veh_information SET topPicPath='%s' WHERE matchNo='%s'",
-data->filePath.c_str(),data->matchNo.c_str());
+                    data->filePath.c_str(),data->matchNo.c_str());
             break;
         default:
             sprintf(logInfo,"camedir error:%d",data->cameraDir);
@@ -407,8 +409,8 @@ data->filePath.c_str(),data->matchNo.c_str());
     succ = query.exec(sql);
     if(succ)
     {
-//        sprintf_s(logInfo,"sql handle ok");
-//        logDebug(logInfo);
+        //        sprintf_s(logInfo,"sql handle ok");
+        //        logDebug(logInfo);
     }
     else {
         sprintf_s(logInfo,"sql handle error %s",query.lastError().text().toStdString().c_str());
@@ -464,8 +466,8 @@ void SqlLiteHandle::select_sql_not_up()
     bool succ =query.exec(sql);
     if(succ)
     {
-//        sprintf_s(logInfo,"sql handle ok");
-//        logDebug(logInfo);
+        //        sprintf_s(logInfo,"sql handle ok");
+        //        logDebug(logInfo);
     }
     else
     {
@@ -542,8 +544,8 @@ void SqlLiteHandle::select_sql_isup()
     bool succ =query.exec(sql);
     if(succ)
     {
-//        sprintf_s(logInfo,"sql handle ok");
-//        logDebug(logInfo);
+        //        sprintf_s(logInfo,"sql handle ok");
+        //        logDebug(logInfo);
     }
     else
     {
@@ -569,27 +571,27 @@ void SqlLiteHandle::select_sql_isup()
         info.axleCnt =query.value("axleCnt").toInt();
         info.axleType =query.value("axleType").toInt();
         info.plateNumColor =query.value("plateColor").toInt();
-        //����
+        //����
         info.sumWeight =query.value("sumWeight").toInt();
         info.limitWeight =query.value("limitWeight").toInt();
         info.overWeight =query.value("overWeight").toInt();
         info.overRate =query.value("overRate").toDouble();
-        //��
+        //��
         info.width =query.value("width").toInt();
         info.limitWidth =query.value("limitWidth").toInt();
         info.overWidth =query.value("overWidth").toInt();
         info.overWidthRate =query.value("overWidthRate").toDouble();
-        //��
+        //��
         info.height =query.value("height").toInt();
         info.limitHeight =query.value("limitHeight").toInt();
         info.overHeight =query.value("overHeight").toInt();
         info.overHeightRate =query.value("overHeightRate").toDouble();
-        //��
+        //��
         info.length =query.value("length").toInt();
         info.limitLength =query.value("limitLength").toInt();
         info.overLength =query.value("overLength").toInt();
         info.overLengthRate =query.value("overLengthRate").toDouble();
-        //ͼƬ��Ƶ·��
+        //ͼƬ��Ƶ·��
         info.frontPlatePicPath =query.value("frontPlatePicPath").toString();
         info.frontPicPath =query.value("frontPicPath").toString();
         info.backPicPath =query.value("backPicPath").toString();
@@ -602,6 +604,178 @@ void SqlLiteHandle::select_sql_isup()
     m_pSqlMutex->unlock();
     return;
 }
+
+QString SqlLiteHandle::select_axleCntweight(QString checkNo)
+{
+    //char logInfo[256]={0};
+    m_pSqlMutex->lock();
+    QString list;
+    if(checkNo.isEmpty())
+    {
+        //myHelper::ShowMessageBoxError("不能为空");
+        m_pSqlMutex->unlock();
+        return nullptr;
+    }
+    QSqlQuery query(database);
+    char sql[1024*4] = {0};
+    sprintf(sql,"select axleCnt from jm_veh_information where checkNo = '%s'",checkNo.toStdString().c_str());
+    bool succ = query.exec(sql);
+    if(succ){
+    }
+    while(query.next())
+    {
+        list.append(query.value(0).toString());
+    }
+    m_pSqlMutex->unlock();
+    return list;
+}
+
+QString SqlLiteHandle::select_totalweight(QString checkNo)
+{
+    m_pSqlMutex->lock();
+    QString list;
+    if(checkNo.isEmpty())
+    {
+        //myHelper::ShowMessageBoxError("不能为空");
+        m_pSqlMutex->unlock();
+        return nullptr;
+    }
+    QSqlQuery query(database);
+    char sql[1024*4] = {0};
+    sprintf(sql,"select sumWeight from jm_veh_information where checkNo = '%s'",checkNo.toStdString().c_str());
+    bool succ = query.exec(sql);
+    if(succ){
+    }
+    while(query.next())
+    {
+        list.append(query.value(0).toString());
+    }
+    m_pSqlMutex->unlock();
+    return list;
+}
+
+int SqlLiteHandle::select_overweight(QString checkNo)
+{
+    m_pSqlMutex->lock();
+    int list = 0;
+    if(checkNo.isEmpty())
+    {
+        //myHelper::ShowMessageBoxError("不能为空");
+        m_pSqlMutex->unlock();
+        return -1;
+    }
+    QSqlQuery query(database);
+    char sql[1024*4] = {0};
+    sprintf(sql,"select overWeight from jm_veh_information where checkNo = '%s'",checkNo.toStdString().c_str());
+    bool succ = query.exec(sql);
+    if(succ){
+    }
+    while(query.next())
+    {
+        list = query.value(0).toInt();
+    }
+    m_pSqlMutex->unlock();
+    return list;
+}
+
+void SqlLiteHandle::set_isVideoUp(QString checkNo)
+{
+    char logInfo[256]={0};
+    m_pSqlMutex->lock();
+    QSqlQuery query(database);
+    char sql[1024] = {0};
+    sprintf(sql,"select * from jm_veh_information where checkNo='%s'",checkNo.toStdString().c_str());
+    logDebug(sql);
+    bool succ =query.exec(sql);
+    if(succ)
+    {
+        //        sprintf_s(logInfo,"sql handle ok");
+        //        logDebug(logInfo);
+    }
+    else
+    {
+        sprintf_s(logInfo,"sql handle error %s",query.lastError().text().toStdString().c_str());
+        logCritical(logInfo);
+        m_pSqlMutex->unlock();
+        return;
+    }
+    query.last();
+    int nRow = query.at();
+    if(nRow>=0)
+    {
+        sprintf(sql,"UPDATE jm_veh_information SET isVideoUp=%d WHERE checkNo='%s'",1,checkNo.toStdString().c_str());
+        succ = query.exec(sql);
+    }
+    m_pSqlMutex->unlock();
+}
+
+int SqlLiteHandle::SelectOverlimitdata(QString checkNo)
+{
+    m_pSqlMutex->lock();
+    //int list = 0;
+    if(checkNo.isEmpty())
+    {
+        //myHelper::ShowMessageBoxError("不能为空");
+        m_pSqlMutex->unlock();
+        return -1;
+    }
+    QSqlQuery query(database);
+    char sql[1024*4] = {0};
+    sprintf(sql,"select * from jm_veh_information where checkNo = '%s'",checkNo.toStdString().c_str());
+    bool succ = query.exec(sql);
+    if(succ){
+    }
+    QSqlRecord recode =query.record();
+    while(query.next())
+    {
+        Overlimitdata *info = new Overlimitdata();
+
+        info->jm_cph = query.value("plateNum").toString();
+        info->jm_zs = query.value("axleCnt").toString();
+        info->jm_zsm = query.value("axleType").toString();
+        info->jm_zlzz = query.value("sumWeight").toString();
+        info->jm_cxl = query.value("overWeight").toString();
+        info->jm_deptid = query.value("deptid").toString();
+        info->jm_cxll = query.value("vehicleType").toString();
+        info->jm_vehicle_Length = query.value("length").toString();
+        info->jm_vehicle_Width = query.value("width").toString();
+        info->jm_vehicle_Height = query.value("height").toString();
+        info->jm_vehicle_Speed = query.value("speed").toString();
+
+        info->jm_clsyr = query.value("clsyr").toString();
+        info->jm_pry_no = query.value("pry_no").toString();
+        info->jm_by1zz = query.value("by1zz").toString();
+        info->jm_illegalpictureurl1 = query.value("illegalpictureurl1").toString();
+        info->jm_illegalpictureurl2 = query.value("illegalpictureurl2").toString();
+        info->jm_illegalpictureurl3 = query.value("illegalpictureurl3").toString();
+        info->jm_illegalpictureurl4 = query.value("illegalpictureurl4").toString();
+        info->jm_illegalvideo5 = query.value("illegalvideo5").toString();
+        info->jm_illegaltime = query.value("illegaltime").toString();
+        info->jm_illegalstation = query.value("illegalstation").toString();
+        info->jm_stationno = query.value("stationno").toString();
+        info->jm_owneraddr = query.value("owneraddr").toString();
+        info->jm_ownertel = query.value("ownertel").toString();
+        info->jm_passno = query.value("passno").toString();
+        info->jm_passline = query.value("passline").toString();
+        info->jm_passstarttime = query.value("passstarttime").toString();
+        info->jm_passendtime = query.value("passendtime").toString();
+        info->jm_passweight = query.value("passweight").toString();
+        info->jm_passgoods = query.value("passgoods").toString();
+        info->jm_schecknO = query.value("schecknO").toString();
+        info->jm_hpzl = query.value("hpzl").toString();
+        info->jm_roadid = query.value("roadid").toString();
+        info->jm_stake_km = query.value("stake_km").toString();
+        info->jm_stake_m = query.value("stake_m").toString();
+        info->jm_hight_waydir = query.value("hight_waydir").toString();
+
+        //添加发送锁
+//        m_pSendMutex->lock();
+//        resultVec.enqueue(info);
+//        m_pSendMutex->unlock();
+    }
+    m_pSqlMutex->unlock();
+    return 0;
+}
 int SqlLiteHandle::set_is_up(QString checkNo,int type)
 {
     char logInfo[256]={0};
@@ -613,8 +787,8 @@ int SqlLiteHandle::set_is_up(QString checkNo,int type)
     bool succ =query.exec(sql);
     if(succ)
     {
-//        sprintf_s(logInfo,"sql handle ok");
-//        logDebug(logInfo);
+        //        sprintf_s(logInfo,"sql handle ok");
+        //        logDebug(logInfo);
     }
     else
     {

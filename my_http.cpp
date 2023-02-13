@@ -7,7 +7,10 @@
 extern int isRelease;
 extern SqlLiteHandle *m_pSqliteHandle;
 extern QList <ReplyData *> reply_list;
+extern QList <ReplyData *> reply_overDataList;
 extern QMutex *m_pReplyMutex;
+
+
 my_http::my_http(QObject *parent) : QObject(parent)
 {
 }
@@ -139,19 +142,19 @@ void my_http::sendHttp(QNetworkAccessManager *m_pManager,QNetworkRequest &weight
         file_array.clear();
     }
     //顶抓拍
-//    if(!info.topPicPath.isEmpty())
-//    {
-//        pic_info.fileType =13;
-//        QFile m_file(info.topPicPath);
-//        QByteArray file_array;
-//        if(m_file.open(QFile::ReadOnly))
-//        {
-//            file_array =m_file.readAll();
-//            pic_info.fileContent =file_array.toBase64();
-//            pic_info.postfix ="jpg";
-//        }
-//        sendPicJson(pic_info);
-//    }
+    //    if(!info.topPicPath.isEmpty())
+    //    {
+    //        pic_info.fileType =13;
+    //        QFile m_file(info.topPicPath);
+    //        QByteArray file_array;
+    //        if(m_file.open(QFile::ReadOnly))
+    //        {
+    //            file_array =m_file.readAll();
+    //            pic_info.fileContent =file_array.toBase64();
+    //            pic_info.postfix ="jpg";
+    //        }
+    //        sendPicJson(pic_info);
+    //    }
     //全景小视频
     if(!info->videoPath.isEmpty())
     {
@@ -170,6 +173,14 @@ void my_http::sendHttp(QNetworkAccessManager *m_pManager,QNetworkRequest &weight
     }
     //m_pSqliteHandle->set_is_up(weight_info.checkNo,0);
 }
+
+void my_http::sendHttp_overData(QNetworkAccessManager *m_pManager, QNetworkRequest &overData, Overlimitdata *overData_info)
+{
+
+    //发送超限数据
+        sendOverDataJson(m_pManager,overData,overData_info);
+}
+
 void my_http::sendWeightJson(QNetworkAccessManager *m_pManager,QNetworkRequest &weight,WeightJsonInfo &weight_info)
 {
     QByteArray postData;
@@ -238,6 +249,63 @@ void my_http::sendPicJson(QNetworkAccessManager *m_pManager,QNetworkRequest &pic
     m_pReplyMutex->unlock();
     logDebug(postData.data());
 }
+
+void my_http::sendOverDataJson(QNetworkAccessManager *m_pManager, QNetworkRequest &overData, Overlimitdata *overData_info)
+{
+    QByteArray postData;
+    QJsonObject json_obj;
+    json_obj.insert("cph",overData_info->jm_cph.toStdString().c_str());
+    json_obj.insert("zs",overData_info->jm_zs.toStdString().c_str());
+    json_obj.insert("zsm",overData_info->jm_zsm.toStdString().c_str());
+    json_obj.insert("zlzz",overData_info->jm_zlzz.toStdString().c_str());
+    json_obj.insert("cxl",overData_info->jm_cxl.toStdString().c_str());
+    json_obj.insert("deptid",overData_info->jm_deptid.toStdString().c_str());
+    json_obj.insert("cxll",overData_info->jm_cxll.toStdString().c_str());
+    json_obj.insert("vehicle_Length",overData_info->jm_vehicle_Length.toStdString().c_str());
+    json_obj.insert("vehicle_Width",overData_info->jm_vehicle_Width.toStdString().c_str());
+    json_obj.insert("vehicle_Height",overData_info->jm_vehicle_Height.toStdString().c_str());
+    json_obj.insert("vehicle_Speed",overData_info->jm_vehicle_Speed.toStdString().c_str());
+    json_obj.insert("clsyr",overData_info->jm_clsyr.toStdString().c_str());
+    json_obj.insert("jm_pry_no",overData_info->jm_pry_no.toStdString().c_str());
+    json_obj.insert("by1zz",overData_info->jm_by1zz.toStdString().c_str());
+    json_obj.insert("illegalpictureurl1",overData_info->jm_illegalpictureurl1.toStdString().c_str());
+    json_obj.insert("illegalpictureurl2",overData_info->jm_illegalpictureurl2.toStdString().c_str());
+    json_obj.insert("illegalpictureurl3",overData_info->jm_illegalpictureurl3.toStdString().c_str());
+    json_obj.insert("illegalpictureurl4",overData_info->jm_illegalpictureurl4.toStdString().c_str());
+    json_obj.insert("illegalvideo5",overData_info->jm_illegalvideo5.toStdString().c_str());
+    json_obj.insert("illegaltime",overData_info->jm_illegaltime.toStdString().c_str());
+    json_obj.insert("illegalstation",overData_info->jm_illegalstation.toStdString().c_str());
+    json_obj.insert("stationno",overData_info->jm_stationno.toStdString().c_str());
+    json_obj.insert("owneraddr",overData_info->jm_owneraddr.toStdString().c_str());
+    json_obj.insert("ownertel",overData_info->jm_ownertel.toStdString().c_str());
+    json_obj.insert("passno",overData_info->jm_passno.toStdString().c_str());
+    json_obj.insert("passline",overData_info->jm_passline.toStdString().c_str());
+    json_obj.insert("passstarttime",overData_info->jm_passstarttime.toStdString().c_str());
+    json_obj.insert("passendtime",overData_info->jm_passendtime.toStdString().c_str());
+    json_obj.insert("passweight",overData_info->jm_passweight.toStdString().c_str());
+    json_obj.insert("passgoods",overData_info->jm_passgoods.toStdString().c_str());
+    json_obj.insert("schecknO",overData_info->jm_schecknO.toStdString().c_str());
+    json_obj.insert("hpzl",overData_info->jm_hpzl.toStdString().c_str());
+    json_obj.insert("roadid",overData_info->jm_roadid.toStdString().c_str());
+    json_obj.insert("stake_km",overData_info->jm_stake_km.toStdString().c_str());
+    json_obj.insert("stake_m",overData_info->jm_stake_m.toStdString().c_str());
+    json_obj.insert("waydir",overData_info->jm_hight_waydir.toStdString().c_str());
+
+    QJsonDocument send_json(json_obj);
+    postData.append(send_json.toJson());
+    QNetworkReply *reply=m_pManager->post(overData,postData);
+    ReplyData* reply_data =new ReplyData();
+    reply_data->checkNo =overData_info->jm_cph;
+    reply_data->isFinish =0;
+    reply_data->reply =reply;
+    reply_data->timeT =QDateTime::currentDateTime().toTime_t();
+
+    m_OverDataReplyQMutex.lock();
+    reply_overDataList.push_back(reply_data);
+    m_OverDataReplyQMutex.unlock();
+
+
+}
 void my_http::m_ReplyFinished(QNetworkReply *reply)
 {
     QByteArray array =reply->readAll();
@@ -253,8 +321,13 @@ void my_http::m_ReplyFinished(QNetworkReply *reply)
     {
         if(recv_json.isObject())
         {
-            QString checkNo;int code =-1;
-            QString appmsg;int type =-1;
+            QString checkNo;
+            int code =-1;
+            QString appmsg;
+            int type =-1;
+
+            QString overDataApi;
+            QString overDataApiMSG;
             QJsonObject obj =recv_json.object();
             if(obj.contains("appcode"))
             {
@@ -289,6 +362,21 @@ void my_http::m_ReplyFinished(QNetworkReply *reply)
                 qDebug()<<"checkNo:"<<checkNo;
 
             }
+            /// 添加超限数据反馈 Added By ZhangYL 2023-01-11
+
+            if(obj.contains("RESULT_CODE"))
+            {
+                value =obj.take("RESULT_CODE");
+                overDataApi=value.toVariant().toString();
+                qInfo()<<"***zhangYL***->"<<"overDataApi:"<<overDataApi;
+            }
+            if(obj.contains("RESULT_MSG"))
+            {
+                value =obj.take("RESULT_MSG");
+                overDataApiMSG=value.toVariant().toString();
+                qInfo()<<"***zhangYL***->"<<"overDataApiMSG:"<<overDataApiMSG;
+
+            }
             if(1==code)
             {
                 m_pReplyMutex->lock();
@@ -304,6 +392,11 @@ void my_http::m_ReplyFinished(QNetworkReply *reply)
             if(code==1&&type==12)
             {
                 m_pSqliteHandle->set_is_up(checkNo,type);
+                qInfo()<<"+++++++设置上传插入点++++++++++\n";
+                qInfo()<<"***zhangYL***->"<<"检测单号:"<<checkNo<<endl;
+                //检测单号符合超限存入
+                emit sendCheckNo(checkNo);
+                //m_ZYLTools->judgeRecord_isOk(checkNo);
             }
         }
         else {

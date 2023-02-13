@@ -6,6 +6,7 @@
 #include <QList>
 #include <QApplication>
 #include <QSettings>
+#include <QDateTime>
 QString logPath ="F:\\jinmai\\log";
 QString picPath ="F:\\jinmai\\pic";
 QString areaId;     //区县编号
@@ -30,6 +31,7 @@ QQueue <RecvPicData *> pic_vec;
 QMutex *m_pRecvMutex;
 QByteArray recv_array;
 QList <ReplyData *> reply_list;
+QList <ReplyData *> reply_overDataList;
 QMutex *m_pReplyMutex;
 //非现场最小包长度
 int min_recv_len =78;
@@ -49,6 +51,7 @@ my_http* m_pHttp;
 int reverseSource =2;
 int localCacheTime =30;
 QQueue <JmVehSqlInfo *> resultVec;
+QQueue <Overlimitdata *> OverVec;
 QMutex *m_pSendMutex;
 int reply_timeout =10;
 //硬盘录像机类型 0没有小视频 1海康硬盘录像机  2大华硬盘录像机
@@ -65,6 +68,16 @@ QString globalCam2Ip;
 int globalCam2Dir=2;
 int max_weight=100000;
 int min_weight=5000;
+//总队接口配置信息
+QString ftp_Url;
+QString ftp_Port;
+QString ftp_UserName;
+QString ftp_Pwd;
+QString overDataUrl;
+QList<QString> qlist_totalUpData; //存放符合总队超限要求的检测单号
+/// 添加上传时间间隔 Added By ZhangYL 2023-01-12
+int n_TimeInterval = 60;
+//QString ftp_Port;
 int init_config()
 {
     m_pSetting =new QSettings("C:\\jm2102\\config.ini",QSettings::IniFormat);
@@ -105,11 +118,30 @@ int init_config()
     globalCam2Dir =m_pSetting->value("/globalCam2Dir").toInt();
     min_weight =m_pSetting->value("/min_weight").toInt();
     max_weight =m_pSetting->value("/max_weight").toInt();
-    qDebug()<<"开始启动......";
-    qDebug()<<weightUrl;
-    qDebug()<<picUrl;
+    //关于新增总队接口相关配置信息
     m_pSetting->endGroup();
+    m_pSetting->beginGroup("/overData");
+    ftp_Url =m_pSetting->value("/ftpUrl").toString();
+    ftp_UserName =m_pSetting->value("/ftpUserName").toString();
+    ftp_Port =m_pSetting->value("/ftpPort").toString();
+    ftp_Pwd =m_pSetting->value("/ftpPassWord").toString();
+    ftp_Pwd =m_pSetting->value("/ftpPassWord").toString();
+    overDataUrl =m_pSetting->value("/overDataUrl").toString();
+
+    m_pSetting->endGroup();
+
+    qDebug()<<"开始启动......";
+    qDebug()<<"weightUrl:"<<weightUrl;
+    qDebug()<<"picUrl:"<<picUrl;
+    qInfo()<<"***zhangYL***->ftp_Url"<<ftp_Url;
+    qInfo()<<"***zhangYL***->ftp_UserName"<<ftp_UserName;
+    qInfo()<<"***zhangYL***->ftp_Port"<<ftp_Port;
+    qInfo()<<"***zhangYL***->ftp_Pwd"<<ftp_Pwd;
+    qInfo()<<"***zhangYL***->overDataUrl"<<overDataUrl;
 }
+
+
+
 int main(int argc, char *argv[])
 {
     char logInfo[256] ={0};
@@ -127,6 +159,7 @@ int main(int argc, char *argv[])
     resultVec.clear();
     qDebug()<<logPath;
     qDebug()<<picPath;
+    //qDebug()<<"显示四位随机数:"<<getRandom(999,9999);
     QApplication a(argc, argv);
     MainWindow w;
     w.setWindowIcon(QIcon("C:/jm2102/weight_pic/jinmai_icon.png"));

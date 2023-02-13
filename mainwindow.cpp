@@ -8,6 +8,7 @@ extern QString weightUrl;
 extern QString picUrl;
 extern int localCacheTime;
 extern QQueue<JmVehSqlInfo *> resultVec;
+extern QQueue<Overlimitdata *> OverVec;
 extern QMutex *m_pSendMutex;
 extern QList <ReplyData *> reply_list;
 extern QMutex *m_pReplyMutex;
@@ -30,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    m_Bridge = new Bridge();
     char logInfo[256] ={0};
     int ret =0;
     ret =m_pSqliteHandle->connectSql();
@@ -49,6 +51,11 @@ MainWindow::MainWindow(QWidget *parent) :
     m_RequestWeight.setHeader(QNetworkRequest::ContentTypeHeader,"application/json;charset=utf-8");
     m_RequestPic.setUrl(QUrl(picUrl));
     m_RequestPic.setHeader(QNetworkRequest::ContentTypeHeader,"application/json;charset=utf-8");
+    ///  Added By ZhangYL 2023-01-11
+    m_RequestOverData.setUrl(QUrl(picUrl));
+    m_RequestOverData.setHeader(QNetworkRequest::ContentTypeHeader,"application/json;charset=utf-8");
+
+
     m_pMyTcpServer =new my_tcpserver();
     m_pRecvThread =new my_recv_handle_thread();
     m_pMatchThread =new my_match_thread();
@@ -67,6 +74,21 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_pReplyTimer,SIGNAL(timeout()),this,SLOT(reply_data()));
     m_pReplyTimer->start(5000);
     //截取小视频定时器
+    /// 添加接受新增检测编号 Added By ZhangYL 2023-01-11
+    connect(m_pHttp,&my_http::sendCheckNo,this,[=](QString checkNo){
+        if(checkNo.isEmpty()){
+            qInfo()<<"***zhangYL***->接受新增检测编号为空"<<endl;
+            return;
+        }
+        m_Bridge->m_ZYLTools->judgeRecord_isOk(checkNo);
+    });
+    connect(m_Bridge->m_ZYLTools,&ZYLTools::send_isVideoUp,this,[=](){
+        //符合上传条件
+        sendOverdata();
+    });
+    connect(ui->pbn_testUp,&QPushButton::clicked,this,[=](){
+    m_Bridge->m_ZYLTools->send_isVideoUp();
+    });
 }
 
 MainWindow::~MainWindow()
@@ -92,6 +114,26 @@ void MainWindow::send_data()
         delete info;
     }
     m_pSendMutex->unlock();
+}
+
+void MainWindow::sendOverdata()
+{
+    m_pSendMutex->lock();
+    while(!OverVec.isEmpty())
+    {
+        Overlimitdata *info =OverVec.dequeue();
+        if(info->jm_zs.isEmpty())
+        {
+            //char logInfo[128] ={0};
+            qInfo()<<"***zhangYL***->上传数据轴数异常暂不上传";
+        }
+        else {
+            m_pHttp->sendHttp_overData(m_pManager,m_RequestOverData,info);
+        }
+        delete info;
+    }
+    m_pSendMutex->unlock();
+
 }
 void MainWindow::reply_data()
 {

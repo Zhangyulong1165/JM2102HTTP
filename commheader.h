@@ -6,8 +6,56 @@
 #include <iostream>
 #include <windows.h>
 using namespace std;
-#define MAX_DEVICE     10             //最大设备数
+#define MAX_DEVICE     10//最大设备数
 #pragma pack(1)
+///  Added By ZhangYL 2023-01-07
+///  重庆超限数据对接
+typedef struct
+{
+QString jm_cph;//    车牌号
+QString jm_zs;//    轴数
+QString jm_zsm;//    轴数描述
+QString jm_zlzz;//    车货总重
+QString jm_cxl;//    超限量
+QString jm_deptid;//    所属机构
+QString jm_cxll;//    车辆类型
+QString jm_vehicle_Length;//    实测车长
+QString jm_vehicle_Width;//    实测车宽
+QString jm_vehicle_Height;//    实测车高
+QString jm_vehicle_Speed;//    车速
+QString jm_clsyr;//    车辆所有人
+QString jm_pry_no;//    违法行为编号
+QString jm_by1zz;//    复称标记
+QString jm_illegalpictureurl1;//    证据图片url1
+
+QString jm_illegalpictureurl2;  //证据图片url2
+QString jm_illegalpictureurl3;  //证据图片url3
+QString jm_illegalpictureurl4;  //证据图片url4
+QString jm_illegalvideo5;  //证据视频url
+QString jm_illegaltime;  //检测（违法）时间
+QString jm_illegalstation;  //检测（违法）站点
+QString jm_stationno;  //检测（违法）站点编号
+QString jm_owneraddr;  //车辆所有人地址
+QString jm_ownertel;  //车辆所有人电话
+QString jm_passno;  //通行许可证号
+QString jm_passline;  //通行许可证线路
+QString jm_passstarttime;  //通行许可证开始时间
+QString jm_passendtime;  //通行许可证结束时间
+QString jm_passweight;  //通行许可证车货重量
+QString jm_passgoods;  //通行许可证货物名称
+QString jm_schecknO;  //数据序号
+
+QString jm_hpzl;//号牌种类
+QString jm_roadid;//案发路段
+QString jm_stake_km;//桩号-KM
+QString jm_stake_m;//桩号-M
+QString jm_hight_waydir;//方向
+//返回数据
+QString RESULT_CODE;//接口调用状态标识
+QString RESULT_MSG;//错误信息，调用成功等信息
+
+}Overlimitdata;//重庆超限数据对接
+
 typedef struct
 {
     QString checkNo;            //检测单号

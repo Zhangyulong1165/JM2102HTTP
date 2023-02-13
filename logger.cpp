@@ -73,5 +73,6 @@ void outputMessage(QtMsgType type, const QMessageLogContext &context, const QStr
     file.flush();
     file.close();
     mutex.unlock();
+
 }
 
